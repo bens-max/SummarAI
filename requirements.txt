@@ -1,2 +1,23 @@
+Flask
 pypdf
 ollama
+python-dotenv
+livereload
+
+
+
+# file_name = input("Enter file name:")                       #taking file name as input
+# while True:
+#     if file_name.lower().endswith(".pdf") and len(file_name) > 4 :
+#         extracted_text = pdf_handler.extract_text_from_pdf(file_name)          #sending file name and receiving extracted text from pdf_handler
+#         break
+#     else:
+#         print("File format not supported")
+#         file_name = input("Enter a file name with a valid format:")
+    
+# if extracted_text:
+#     print(summarizer.summarize(extracted_text))             #receiving and printing the summary
+# elif extracted_text is None:
+#     print("Empty file.")
+# else:
+#     print("Summarization stopped")
