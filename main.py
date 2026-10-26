@@ -40,6 +40,8 @@ def home():
             final_summary = summarizer.combine_summaries(summary)
             print("Final summary length:",len(final_summary))
 
+            formatted_summary = summarizer.format_summary(final_summary)
+
             output_directory = Path("output")
             output_directory.mkdir(exist_ok=True)
 
@@ -69,7 +71,7 @@ def home():
 
             summary_file = output_directory/f"{Path(uploaded_file.filename).stem}_summary.txt"
 
-            summary_file.write_text(final_summary,encoding="utf-8")
+            summary_file.write_text(formatted_summary,encoding="utf-8")
 
             session["summary_file"] = str(summary_file)                 #storing summary in session
 

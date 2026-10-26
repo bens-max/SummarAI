@@ -129,42 +129,90 @@ def combine_summaries(summaries):
     response = ollama.generate(
         model="gemma3:4b",
         prompt=f"""
-YCreate one complete final summary from the following summaries of different
-parts of the same document.
+Create one complete final summary from the following summaries of different parts of the same document.
 
-Output exactly two sections:
+Your task is to combine the information into a coherent, well-organized final summary while preserving the document's meaning and logical flow.
+
+OUTPUT STRUCTURE
 
 SUMMARY
 
-Write a coherent summary covering the important information from the entire
-document, including the beginning, middle, and conclusion.
+Write a concise overview of the entire document, covering its purpose, main ideas, and conclusion.
+
+Organize the summary into multiple paragraphs.
+- Each paragraph should focus on one related idea or group of ideas.
+- Separate paragraphs with a blank line.
+- Do not write the entire summary as one long paragraph.
 
 MAIN HEADINGS AND KEY POINTS
 
-List the major headings in the order they appear and give concise key points
-under each heading.
-For each major heading, provide 2-3 key points maximum.
-Do not include subheadings unless they are important.
+List the major headings in the order they appear in the original document.
 
-Requirements:
-- Use only information provided below.
-- Remove repetition.
-- Do not omit major sections.
-- Do not add new information.
-- Use clear professional language.
-- Complete the response without stopping mid-sentence.
-- Do not use markdown symbols such as #, *, or **.
+For each major heading:
+- Write the heading on its own line.
+- Under the heading, provide 2–3 concise key points as a bulleted list.
+- Each bullet point must begin with a hyphen followed by a space.
+- Keep each bullet point focused on one important idea.
+- Do not use labels such as "Heading:", "Key point 1:", or "Key point 2:".
+- Include subheadings only when they are important for understanding the document.
+- Separate different major headings with a blank line.
+
+CONTENT REQUIREMENTS
+
+- Use only information contained in the summaries provided below.
+- Combine related information and remove repetition.
+- Do not omit important sections or ideas.
+- Do not invent facts, examples, headings, or conclusions.
+- Use clear, simple, professional language.
+- Preserve important technical terms, definitions, and examples when relevant.
+- Ensure the final summary covers the beginning, middle, and conclusion of the document.
+- Complete the entire response without stopping mid-sentence.
+
+FORMATTING REQUIREMENTS
+
+- Use plain text headings without prefixes such as "Heading:".
+- Do not use Markdown heading symbols such as # or bold formatting symbols such as **.
+- Do not use decorative characters, numbered labels for key points, or unnecessary separators.
+- Use hyphens only to introduce the required bullet points.
+- Use blank lines to separate paragraphs, headings, and sections.
+- Output exactly the two main sections specified above.
+- Return only the final summary, without explanations, introductory remarks, or comments about the task.
 
 Summaries:
 
 {summaries}
 """,
     options={
-        "num_predict": 4000
+        "num_predict": 5000
     }
     )
     return response["response"]
 
+
+def format_summary(final_summary):
+
+    main = final_summary.split("**MAIN HEADINGS AND KEY POINTS**")
+
+    overview = main[0].replace("**SUMMARY**","")
+
+    details = main[1]
+
+    lines = details.splitlines()
+
+    current_section = None
+
+    for line in lines:
+        line = line.strip()
+        print(line)
+
+    paragraphs = overview.split("\n\n")
+
+    summary = {
+        "paragraphs" : paragraphs,
+        "sections" : []
+    }
+
+    return summary,main
 
 def find_realted_documents(new_summary, previous_summaries):
     response = ollama.generate(
