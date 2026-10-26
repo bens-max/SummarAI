@@ -1,70 +1,119 @@
 # 📄 SummarAI
 
-SummarAI is a Python-based AI PDF summarizer that extracts text from PDF documents and generates concise summaries using a locally running Large Language Model (LLM) through Ollama and Gemma. The project is designed as the foundation for a future intelligent document assistant.
+**SummarAI** is an AI-powered PDF summarization application built with Python. It extracts text from PDF documents and uses a Large Language Model (LLM) to generate concise, structured summaries that help users understand lengthy documents more efficiently.
 
-> **Current Version:** v1.0 (Terminal Application)
+The project began as a terminal-based application using Ollama and Gemma and is evolving into a web-based document summarization tool using Flask and the Google Gemini API.
 
----
+> **Current focus:** Structured PDF summarization and a foundation for an intelligent document assistant.
 
 ## ✨ Features
 
-- 📄 Extracts text from PDF files
-- 🤖 Generates AI-powered summaries using Ollama + Gemma
-- ✅ Detects unsupported file formats
-- ✅ Handles missing files gracefully
-- ✅ Detects empty PDF files
-- ✅ Validates user input
-- 💻 Runs completely locally (No cloud API required)
+- 📄 **PDF Text Extraction** — Extracts text from text-based PDF documents using PyPDF.
+- 🤖 **AI-Powered Summarization** — Uses an LLM to generate concise summaries.
+- 🧩 **Chunk-Based Processing** — Splits lengthy extracted text into smaller chunks for summarization.
+- 📝 **Structured Summaries** — Aims to organize summaries into readable sections with headings and key points.
+- 🌐 **Web Interface** — Flask-based interface for interacting with the application.
+- ⚠️ **Input Validation** — Handles supported file formats and common input errors.
+- 🔐 **Environment-Based Configuration** — Uses environment variables to configure API credentials.
+- 🛠️ **Modular Architecture** — Separates PDF processing, summarization, and application logic.
 
----
+*Note: Features listed here describe the intended/current development direction; verify each feature against the latest implementation before release.*
 
-## 🛠️ Technologies Used
+## 🛠️ Technology Stack
 
-- Python 3
-- PyPDF
-- Ollama
-- Gemma
-- Virtual Environment (venv)
+| Technology | Purpose |
+|---|---|
+| Python 3 | Core programming language |
+| Flask | Web application framework |
+| PyPDF | PDF text extraction |
+| Google Gemini API | Cloud-based AI summarization |
+| python-dotenv | Loading environment variables |
+| HTML/CSS | Web interface |
+| Git and GitHub | Version control and collaboration |
+| Python virtual environment | Dependency isolation |
 
----
+The project originally used **Ollama and Gemma** for local inference. The current development direction is to use the Google Gemini API, reducing the need to run a local LLM.
+
+## 🏗️ How It Works
+
+```text
+        User uploads a PDF
+                |
+                v
+        Validate the file
+                |
+                v
+       Extract text using PyPDF
+                |
+                v
+       Split text into chunks
+                |
+                v
+      Send chunks to the LLM
+                |
+                v
+      Generate chunk summaries
+                |
+                v
+       Combine and structure
+          the summaries
+                |
+                v
+       Display the final summary
+```
 
 ## 📁 Project Structure
 
-```
+The structure below represents the main application components. Adjust it to match the files currently present in the repository.
+
+```text
 SummarAI/
 │
-├── main.py
-├── pdf_handler.py
-├── summarizer.py
-├── requirements.txt
-├── README.md
+├── main.py                 # Flask application and routes
+├── pdf_handler.py          # PDF text extraction and processing
+├── summarizer.py           # AI summarization logic
+├── templates/
+│   └── index.html          # Web interface template
+├── static/                 # CSS and other static assets
+├── input/                  # Input PDFs, if used locally
+├── extracted_text/         # Extracted text, if stored locally
+├── output/                 # Generated outputs, if stored locally
+├── .env                    # API configuration (not committed)
 ├── .gitignore
-└── input/
+├── requirements.txt
+└── README.md
 ```
 
----
+## 🚀 Getting Started
 
-## 🚀 Installation
+### Prerequisites
+
+Before running SummarAI, ensure you have:
+
+- Python 3 installed.
+- Git installed.
+- An active internet connection for Gemini API requests.
+- A Google Gemini API key.
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/SummarAI.git
+git clone https://github.com/bens-max/SummarAI.git
 cd SummarAI
 ```
 
 ### 2. Create a virtual environment
 
-Linux/macOS
+**Linux/macOS**
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Windows
+**Windows**
 
-```bash
+```powershell
 python -m venv .venv
 .venv\Scripts\activate
 ```
@@ -75,132 +124,110 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
----
+### 4. Configure the API key
 
-## 📥 Install Ollama
+Create a `.env` file in the project root directory:
 
-Download and install Ollama from
-
-https://ollama.com/
-
-After installation, pull the Gemma model:
-
-```bash
-ollama pull gemma3
+```env
+GEMINI_API_KEY=your_api_key_here
 ```
 
-Verify it is installed:
+Replace `your_api_key_here` with your own API key.
 
-```bash
-ollama list
-```
+You can obtain an API key through [Google AI Studio](https://aistudio.google.com/).
 
----
+**Security reminder:** Never commit your `.env` file or expose your API key in source code, screenshots, logs, or public repositories.
 
-## ▶️ Running the Project
+Ensure `.env` is listed in `.gitignore`.
 
-Run:
+### 5. Run the application
+
+If `main.py` is the Flask application's entry point:
 
 ```bash
 python main.py
 ```
 
-Enter the PDF filename when prompted.
+Open the local address printed by Flask in your browser. For a typical local development configuration, this may be:
 
-Example:
-
-```
-Enter the file name:
-sample.pdf
+```text
+http://127.0.0.1:5000
 ```
 
-The application will:
+Follow the application's interface to upload a supported PDF and generate a summary.
 
-1. Validate the file
-2. Extract text
-3. Generate an AI summary
-4. Display the summary in the terminal
+## 📑 Supported Documents
 
----
+### Currently targeted
 
-## ⚠️ Current Limitations
+- Text-based PDF documents.
+- Single-document summarization.
 
-Version 1.0 supports:
+### Not currently included in the core workflow
 
-- Text-based PDF files only
-- Terminal interface
-- Single document summarization
+- Scanned PDFs requiring OCR.
+- Word documents (`.docx`).
+- PowerPoint presentations (`.pptx`).
+- Image-based document extraction.
+- Batch processing of multiple documents.
 
-Currently not supported:
+Support for these formats and capabilities may be added in future versions.
 
-- Scanned PDFs
-- OCR
-- DOCX
-- PPTX
-- Images
-- Batch processing
+## 🔮 Roadmap
 
----
+SummarAI is being developed toward a more capable document assistant.
 
-## 🔮 Planned Features
+- [x] Initial terminal-based PDF summarizer.
+- [x] PDF text extraction using PyPDF.
+- [x] Initial AI integration with Ollama and Gemma.
+- [ ] Complete and validate Gemini API integration.
+- [ ] Improve summary consistency and structure.
+- [ ] Refine heading and key-point extraction.
+- [ ] Improve handling of long documents and chunk boundaries.
+- [ ] Add document continuity detection using previously generated summaries.
+- [ ] Compare new document summaries with previously processed documents.
+- [ ] Generate questions from uploaded documents.
+- [ ] Add chapter-wise summaries.
+- [ ] Support OCR for scanned PDFs.
+- [ ] Add summary export options.
+- [ ] Add multi-file processing.
+- [ ] Introduce a REST API.
+- [ ] Improve automated testing and error handling.
 
-- Web Interface
-- OCR support for scanned PDFs
-- Question Answering over documents
-- Chapter-wise summaries
-- Bullet-point summaries
-- Heading extraction
-- Multi-file support
-- Drag & Drop upload
-- Export summary
-- REST API
+*Roadmap checkboxes should be updated to reflect the features that are actually completed and tested.*
 
----
+## 🔐 Security and Privacy
 
-## 📸 Example Workflow
-
-```
-User
-   │
-   ▼
-Enter PDF filename
-   │
-   ▼
-Validate file
-   │
-   ▼
-Extract text using PyPDF
-   │
-   ▼
-Send text to Ollama (Gemma)
-   │
-   ▼
-Receive summary
-   │
-   ▼
-Display summary
-```
-
----
+- API credentials should be stored in environment variables.
+- The `.env` file should be excluded from version control.
+- Uploaded documents and generated outputs should be handled carefully.
+- API-based summarization sends document text to the configured AI provider. Avoid uploading confidential documents unless the provider's data-handling terms and your requirements permit it.
+- Production deployments should use appropriate upload validation, file-size limits, and secure configuration.
 
 ## 🤝 Contributing
 
-Contributions, suggestions, and improvements are welcome.
+Contributions, bug reports, suggestions, and improvements are welcome.
 
-Feel free to fork the repository and submit a Pull Request.
-
----
+1. Fork the repository.
+2. Create a feature branch.
+3. Make your changes and test them.
+4. Submit a pull request describing your improvements.
 
 ## 📜 License
 
-This project is licensed under the MIT License.
-
----
+This project is intended to be distributed under the MIT License. See the repository's `LICENSE` file for the applicable license terms.
 
 ## 👨‍💻 Author
 
 **Benson Cherian Suresh**
 
-Third Year Computer Science Engineering Student
+Third-Year Computer Science and Engineering Student
 
-Project: **SummarAI**
+**Project:** SummarAI
+
+- GitHub: [@bens-max](https://github.com/bens-max)
+- Repository: [SummarAI](https://github.com/bens-max/SummarAI)
+
+---
+
+*SummarAI — Making lengthy documents easier to understand, one summary at a time.*
