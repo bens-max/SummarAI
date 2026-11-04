@@ -1,10 +1,21 @@
-import ollama
+import os
 import re
+from dotenv import load_dotenv
+from google import genai
+
+load_dotenv()
+
+API_KEY = os.getenv("GEMINI_API_KEY")
+MODEL = os.getenv("GEMINI_MODEL","gemini-3.6-flash")
+
+if not API_KEY:
+    raise ValueError("GEMINI_API_KEY is missing from .env")
+
+client = genai.Client(api_key=API_KEY)
 
 def summarize(text):
-    response = ollama.generate(
-        model = "gemma3:4b",
-        prompt = f'''You are an expert document analyst and summarizer.
+    
+    prompt = f'''You are an expert document analyst and summarizer.
 
 Your task is to analyze the following extracted text from a document and produce a clear, well-structured summary along with the document's main headings and their key points.
 
@@ -78,8 +89,13 @@ Document Text:
 
 {text}'''
 
+    
+    response = client.models.generate_content(
+        model = MODEL,
+        contents = prompt
     )
-    return response["response"]
+
+    return response.text
 
 
 def chunks_text(text,chunk_size=3000,overlap=200):
@@ -126,9 +142,8 @@ def summarize_chunks(chunks):
 
 
 def combine_summaries(summaries):
-    response = ollama.generate(
-        model="gemma3:4b",
-        prompt=f"""
+    
+    prompt=f"""
 Create one complete final summary from the following summaries of different parts of the same document.
 
 Your task is to combine the information into a coherent, well-organized final summary while preserving the document's meaning and logical flow.
@@ -182,42 +197,32 @@ Summaries:
 
 {summaries}
 """,
-    options={
-        "num_predict": 5000
-    }
+    
+    
+    response = client.models.generate_content(
+        model = MODEL,
+        contents = prompt
     )
-    return response["response"]
+
+    return response.text
 
 
 def format_summary(final_summary):
 
-    main = final_summary.split("**MAIN HEADINGS AND KEY POINTS**")
+    main_heading = "MAIN HEADINGS AND KEY POINTS"
 
-    overview = main[0].replace("**SUMMARY**","")
+    if main_heading not in final_summary:
+        return final_summary.strip()
 
-    details = main[1]
+    overview, details = final_summary.split(main_heading,1)
 
-    lines = details.splitlines()
+    overview = overview.replace("SUMMARY","",1).strip()
+    details = details.strip()
 
-    current_section = None
-
-    for line in lines:
-        line = line.strip()
-        print(line)
-
-    paragraphs = overview.split("\n\n")
-
-    summary = {
-        "paragraphs" : paragraphs,
-        "sections" : []
-    }
-
-    return summary,main
+    return f"SUMMARY\n\n{overview}\n\n{main_heading}\n\n{details}"
 
 def find_realted_documents(new_summary, previous_summaries):
-    response = ollama.generate(
-        model="gemma3:4b",
-        prompt=f'''You are a document relationship analyzer.
+    prompt=f'''You are a document relationship analyzer.
 
 A new document has been summarized below. You will also receive summaries
 of documents that were uploaded previously.
@@ -242,14 +247,17 @@ content or subject matter.
 Return only the classifications and the corresponding document names.
 Do not provide explanations.
 '''
+    
+
+    response = client.models.generate_content(
+        model = MODEL,
+        contents = prompt
     )
 
-    return response["response"]
+    return response.text
 
 def query(text_file,query):
-    response = ollama.generate(
-        model="gemma3:4b",
-        prompt=f"""
+    prompt=f"""
 Answer the user's question only using the document below.
 
 Document:
@@ -260,5 +268,10 @@ Question:
 
 If the answer is not present in the document, say so.
 """
+    
+    response = client.models.generate_content(
+        model = MODEL,
+        contents = prompt
     )
-    return response["response"]
+
+    return response.text
