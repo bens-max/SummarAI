@@ -13,8 +13,6 @@ __pycache__/
 
 extracted_text/
 output/
-static/
-templates/
 
 # environment files
 .env
