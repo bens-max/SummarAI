@@ -11,7 +11,18 @@ MODEL = os.getenv("GEMINI_MODEL","gemini-3.6-flash")
 if not API_KEY:
     raise ValueError("GEMINI_API_KEY is missing from .env")
 
-client = genai.Client(api_key=API_KEY)
+client = genai.Client(
+    api_key=API_KEY,
+    http_options=genai.types.HttpOptions(
+        retry_options=genai.types.HttpRetryOptions(
+            attempts=3,
+            initial_delay=2,
+            max_delay=10,
+            exp_base=2,
+            jitter=1
+        )
+    )
+)
 
 def summarize(text):
     
@@ -89,13 +100,24 @@ Document Text:
 
 {text}'''
 
-    
-    response = client.models.generate_content(
-        model = MODEL,
-        contents = prompt
-    )
+    try:
+        response = client.models.generate_content(
+            model = MODEL,
+            contents = prompt
+        )
 
-    return response.text
+        if not response.text:
+            raise RuntimeError("Gemini returned an empty response.")
+
+        return response.text
+
+    except genai.errors.APIError as e:
+        print(f"Gemini API Error: {e}")
+        raise RuntimeError(
+            "SummarAI could not generate the summary. "
+            "Please try again later."
+        ) from e
+
 
 
 def chunks_text(text,chunk_size=3000,overlap=200):
@@ -198,14 +220,24 @@ Summaries:
 {summaries}
 """,
     
+    try:
+        response = client.models.generate_content(
+            model = MODEL,
+            contents = prompt
+        )
+
+        if not response.text:
+            raise RuntimeError("Gemini returned an empty response.")
+        
+        return response.text
+
+    except genai.errors.APIError as e:
+        print(f"Gemini API Error during summary combination: {e}")
+        raise RuntimeError(
+            "SummarAI could not combine the generated summaries. "
+            "Please try again later."
+        ) from e
     
-    response = client.models.generate_content(
-        model = MODEL,
-        contents = prompt
-    )
-
-    return response.text
-
 
 def format_summary(final_summary):
 
@@ -248,13 +280,20 @@ Return only the classifications and the corresponding document names.
 Do not provide explanations.
 '''
     
+    try:
+        response = client.models.generate_content(
+            model = MODEL,
+            contents = prompt
+        )
 
-    response = client.models.generate_content(
-        model = MODEL,
-        contents = prompt
-    )
+        if not response.text:
+            raise ValueError("Gemini returned an empty response.")
+        
+        return response.text
 
-    return response.text
+    except genai.errors.APIError as e:
+        print(f"Gemini API Error during document comparison: {e}")
+        return None
 
 def query(text_file,query):
     prompt=f"""
@@ -268,10 +307,21 @@ Question:
 
 If the answer is not present in the document, say so.
 """
-    
-    response = client.models.generate_content(
-        model = MODEL,
-        contents = prompt
-    )
 
-    return response.text
+    try:
+        response = client.models.generate_content(
+            model = MODEL,
+            contents = prompt
+        )
+
+        if not response.text:
+            raise RuntimeError("Gemini returned an empty response.")
+
+        return response.text
+
+    except genai.errors.APIError as e:
+        print(f"Gemini API Error: {e}")
+        raise RuntimeError(
+            "SummarAI could not answer your question. "
+            "Please try again later."
+        ) from e

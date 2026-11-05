@@ -31,16 +31,22 @@ def home():
             chunks = summarizer.chunks_text(extracted_text)
             print("Number of chunks:",len(chunks))
 
-            summaries = summarizer.summarize_chunks(chunks)             #receiving generated summary from summarizer.py
-            print("Number of summaries:",len(summaries))
+            try:
+                summaries = summarizer.summarize_chunks(chunks)             #receiving generated summary from summarizer.py
+                print("Number of summaries:",len(summaries))
 
-            summary = "\n\n".join(summaries)
-            print("Combined summaries length:",len(summary))
+                summary = "\n\n".join(summaries)
+                print("Combined summaries length:",len(summary))
 
-            final_summary = summarizer.combine_summaries(summary)
-            print("Final summary length:",len(final_summary))
+                final_summary = summarizer.combine_summaries(summary)
+                print("Final summary length:",len(final_summary))
 
-            formatted_summary = summarizer.format_summary(final_summary)
+                formatted_summary = summarizer.format_summary(final_summary)
+
+            except RuntimeError as e:
+                print(f"Summarization failed: {e}")
+                session["error_message"] = str(e)
+                return redirect(url_for("home"))
 
             output_directory = Path("output")
             output_directory.mkdir(exist_ok=True)
@@ -63,9 +69,12 @@ def home():
                     final_summary,
                     previous_summaries_text
                 )
-
-                print("Related Documents:")
-                print(related_documents)
+                if related_documents:
+                    print("Related Documents:")
+                    print(related_documents)
+                else:
+                    print("Document comparison skipped due to Gemini API error.")
+            
             else:
                 print("No previous documents found.")
 
@@ -86,8 +95,15 @@ def home():
             text_file = text_file_path.read_text(encoding = "utf-8")    #reading the contents
 
             query = request.form.get("query")                           #receiving the query from web
-            query_response = summarizer.query(text_file,query)          #passing query and extracted text to summarizer for query response
+            
+            try:
+                query_response = summarizer.query(text_file,query)      #passing query and extracted text to summarizer for query response
 
+            except RuntimeError as e:
+                print(f"Query failed: {e}")
+                session["error_message"] = str(e)
+                return redirect(url_for("home"))
+            
             query_file = Path("output")/f"{Path(session["filename"]).stem}_queries.txt"
 
             with query_file.open("a", encoding="utf-8") as file:
@@ -122,7 +138,15 @@ def home():
 
     filename = session.get("filename","")                               #display file name on web
 
-    return render_template("index.html",summary_of_pdf=summary,query_response=query_response,filename=filename) 
+    error_message = session.pop("error_message","")
+
+    return render_template(
+        "index.html",
+        summary_of_pdf=summary,
+        query_response=query_response,
+        filename=filename,
+        error_message = error_message
+    ) 
 
 
 @app.route("/clear",methods=["POST"])
