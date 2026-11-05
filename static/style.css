@@ -1,0 +1,42 @@
+body{
+    background-image: url("logo.png");
+    background-position: left top;
+    background-repeat: no-repeat;
+    background-size: 100px;
+    opacity: 1.0;
+}
+
+.center{
+    text-align: center;
+    color: brown;
+    font-size: 35px;
+    padding: 10px;
+}
+
+.file{
+    text-align: center;
+    border-style: solid;
+}
+
+#para1{
+    border-style:  solid;
+    border-color: black;
+    border-width: 3px 3px 3px 3px;
+    color: blue;
+    font-size: 50px;
+    margin: 10px 100px 10px 100px;
+    text-align: center;
+}
+
+p.text{
+    border: 1px solid;
+    font-size: large;
+}
+
+pre.text{
+    border-style: dashed;
+    border-width: 2px;
+    font-size: small;
+    font-family: Arial, Helvetica, sans-serif;
+    margin:10px .1px 10px 1px;
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summar AI</title>
+    <link rel="stylesheet" href="{{url_for('static', filename = 'style.css')}}">
+</head>
+<body>
+    <h1 class="center">Welcome to Summar AI</h1>
+    <form action="/" method="post" enctype="multipart/form-data">                                          <!-- collecting data, action=tells browser where to send data, method=how to send the data, enctype=special encoding -->
+        <!-- <label class="text" for="pdf">Upload a file:</label>                                                             for for input whose id is pdf, label is an input field -->
+        <br><br>
+
+        <input type="file" id="pdf" name="pdf" accept=".pdf">                                              <!--creates a file picker, type tells browser that input is a file, id for identifying input, name for browser sends data as name=value pairs-->
+        <br><br>
+
+        <button type="submit">Summarize</button>                                                           <!--sends all the form data to server-->
+    </form>
+    <p id="para1">Document:{{filename}}</p>
+    {% if error_message %}
+        <p style="color:red;">{{error_message}}</p>
+    {% endif %}
+    <pre class="text">{{summary_of_pdf}}</pre>
+    <form action="/" method="post">
+        <label class="text">Ask your query:</label>
+        <input type="text" name="query">
+        <br><br>
+        <button type="submit">Send to AI</button>
+    </form>
+    <pre class="text"><p>{{query_response}}</p></pre>
+    <form action="\clear" method="post">
+        <button type="submit" name="clear">Clear session</button>
+    </form>
+</body>
+</html>
