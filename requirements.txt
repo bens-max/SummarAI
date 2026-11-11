@@ -3,3 +3,4 @@ pypdf
 python-dotenv
 livereload
 google-genai
+groq
